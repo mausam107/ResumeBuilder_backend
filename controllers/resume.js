@@ -1,4 +1,8 @@
 const resumeDb = require("../model/resume");
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
+const path = require("path");
+
 
 exports.userDetail= async (req, res, next)=>{
   try {
@@ -143,6 +147,57 @@ exports.getUserById= async (req,res,next)=>{
     
   }
 }
+
+exports.createPDF = async (req,res,next)=>{
+  try {
+    let userId = req.query.userId;
+     console.log(userId);
+
+   let resume = await resumeDb.findOne({ userId });
+   if (!userId) {
+     throw new Error("No resume found.");
+    }
+    let user_details = resume.user_details;
+    let education = resume.education;
+    let experience = resume.experience;
+    let project = resume.project;
+    let portfolio = resume.portfolio;
+
+    const resumeName = "Resume-" + userId + ".pdf";
+    const resumePath = path.join("data", "resume", resumeName);
+
+      const pdfDoc = new PDFDocument();
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        'inline; filename="' + resumeName + '"'
+      );
+      pdfDoc.pipe(fs.createWriteStream(resumePath));
+      pdfDoc.pipe(res);
+
+      pdfDoc.fontSize(26).text("Resume", {
+        underline: true,
+      });
+      pdfDoc.text("-----------------------");
+      pdfDoc.fontSize(14).text("Name:" + user_details.name);
+      pdfDoc.fontSize(14).text("email:" + user_details.email);
+      pdfDoc.fontSize(14).text("phone:" + user_details.phone);
+      pdfDoc.fontSize(14).text("Education:");
+      pdfDoc.fontSize(14).text("Post Graducation:" + education.pg);
+      pdfDoc.fontSize(14).text("Under Graducation:" + education.ug);
+      pdfDoc.fontSize(14).text("Twelfth:" + education.twelth);
+      pdfDoc.fontSize(14).text("Tenth:" + education.tenth);
+      pdfDoc.fontSize(14).text("Experience:" + experience);
+      pdfDoc.fontSize(14).text("Projects:" + project);
+      pdfDoc.fontSize(14).text("Portfolio:" + portfolio);
+      pdfDoc.end();
+    } catch (error) {
+      res.json({
+        error:error.message
+      })
+    }
+ }
+
   
 
 

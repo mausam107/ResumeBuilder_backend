@@ -16,4 +16,6 @@ router.post('/portfolio',resumeController.portfolio);
 
 router.get('/getUserById',resumeController.getUserById);
 
+router.post("/createPdf",resumeController.createPDF);
+
 module.exports=router;

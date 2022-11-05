@@ -16,6 +16,8 @@ app.use(bodyParser.json())
 
 app.use(resumeRoutes);
 
+app.use(express.urlencoded({ extended: true }));
+
 mongoose.connect(process.env.MongoUser)
 .then(result=>{
     app.listen(8080,()=>{
